@@ -13,13 +13,13 @@
 #define SOUND_COUNT 64
 
 // How many samples of audio can be recorded into a sound.
-#define SOUND_SAMPLE_COUNT (48000 * 4)
+#define SOUND_SAMPLE_COUNT (48000)
 
 // How many samples the buffer at a time. Affects latency and stability.
 #define CHUNK_SAMPLE_COUNT 64
 
 // Hear the recording as it comes in.
-// #define LOOPBACK
+#define LOOPBACK
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_stdinc.h>
@@ -32,7 +32,7 @@ SDL_AudioDeviceID audio_output_device;
 SDL_AudioDeviceID audio_input_device;
 
 // Global volume control.
-f32 volume = 0.5f;
+f32 volume = 0.75f;
 
 // Sound states.
 #define PLAYING 1
@@ -91,7 +91,7 @@ int main(int argument_count, char ** arguments) {
 
     for (int s = 0; s < SOUND_COUNT; ++s) {
         sounds[s].state = PLAYING;
-        sounds[s].volume = 0.5f;
+        sounds[s].volume = 0.9f;
     }
 
     SDL_AudioSpec spec = {
@@ -122,7 +122,6 @@ int main(int argument_count, char ** arguments) {
                     if (sc >= 0 && sc <= SOUND_COUNT) {
                         SDL_LockAudioDevice(audio_output_device);
                         sounds[sc].state = RECORDING;
-                        printf("Recording: %d\n", sc);
                         SDL_UnlockAudioDevice(audio_output_device);
                     }
                 }
@@ -132,7 +131,6 @@ int main(int argument_count, char ** arguments) {
                     if (sc >= 0 && sc <= SOUND_COUNT) {
                         SDL_LockAudioDevice(audio_output_device);
                         sounds[sc].state = PLAYING;
-                        printf("Playing: %d\n", sc);
                         SDL_UnlockAudioDevice(audio_output_device);
                     }
                 }
@@ -149,7 +147,13 @@ int main(int argument_count, char ** arguments) {
 
         SDL_UnlockAudioDevice(audio_output_device);
 
-        SDL_Delay(10);
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                if (pixels[x + y * width] > 0) pixels[x + y * width] -= 1000;
+            }
+        }
+
+        SDL_Delay(1);
         SDL_UpdateWindowSurface(window);
     }
 }
